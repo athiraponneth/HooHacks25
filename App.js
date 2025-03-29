@@ -6,6 +6,8 @@ import { auth } from './firebaseConfig'; // Make sure you have firebase config
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import OutfitSearchScreen from './OutfitSearchScreen'; // Outfit search screen
 import CreateAccountScreen from './CreateAccountScreen'; // Create account screen
+import UserLocation from './components/UserLocation';
+
 
 // Sign In Screen Component
 function SignInScreen({ navigation }) {
