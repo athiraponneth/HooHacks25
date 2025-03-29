@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import * as UserLocation from './UserLocation'
 import * as Location from 'expo-location';
+
 
 const API_KEY='400c0b2f1c1c6dab405313f0d12dfe91' //BAD
 
@@ -48,13 +50,13 @@ export default function WeatherComponent() {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      let latitude = parseFloat(location.coords.latitude);
-      let longitude = parseFloat(location.coords.longitude);
+      // let latitude = parseFloat(location.coords.latitude);
+      // let longitude = parseFloat(location.coords.longitude);
       setLocation(location);
 
       try {
         const response = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=38.0293&longitude=-78.4767&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=1`
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=1`
         );
         const result = await response.json();
         setWeather(result);

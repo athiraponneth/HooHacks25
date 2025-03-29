@@ -1,10 +1,12 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import UserLocation from './components/UserLocation';
+
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Hello, Expo!</Text>
+      <UserLocation/>
     </View>
   );
 }
