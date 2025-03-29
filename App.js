@@ -1,63 +1,91 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Button,
-  Image,
-  ScrollView,
-  Linking,
-  StyleSheet,
-} from 'react-native';
-import { searchOutfitPhotos } from './pexels';
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
+import { auth } from './firebaseConfig'; // Make sure you have firebase config
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import OutfitSearchScreen from './OutfitSearchScreen'; // This is the outfit search screen
 
-export default function App() {
-  const [results, setResults] = useState([]);
+// Sign In Screen Component
+function SignInScreen({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSearch = async () => {
+  const handleSignIn = async () => {
     try {
-      const photos = await searchOutfitPhotos('red hoodie outfit');
-      console.log('Pexels results:', photos); // See this in terminal
-      setResults(photos);
-    } catch (err) {
-      console.error('Error fetching from Pexels:', err);
+      await signInWithEmailAndPassword(auth, email, password);
+      navigation.replace('OutfitSearchScreen'); // Navigate to the outfit search screen
+    } catch (error) {
+      Alert.alert('Error', error.message);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Pexels Outfit Search</Text>
-      <Button title="Search for Outfits" onPress={handleSearch} />
-
-      {results.map((photo) => (
-        <View key={photo.id} style={styles.result}>
-          <Text>{photo.title}</Text>
-          <Image source={{ uri: photo.imageUrl }} style={styles.image} />
-          <Button title="View on Pexels" onPress={() => Linking.openURL(photo.link)} />
-        </View>
-      ))}
-    </ScrollView>
+    <View style={styles.container}>
+      <Text style={styles.title}>Sign In</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <Button title="Sign In" onPress={handleSignIn} />
+    </View>
   );
 }
 
+// App component with navigation
+export default function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const Stack = createStackNavigator();
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        {user ? (
+          <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
+        ) : (
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+// Styling
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: 'center',
     padding: 20,
-    alignItems: 'center',
     backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     marginBottom: 20,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
-  result: {
-    marginBottom: 30,
-    alignItems: 'center',
-  },
-  image: {
-    width: 250,
-    height: 250,
-    borderRadius: 10,
-    marginVertical: 10,
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingLeft: 10,
   },
 });
