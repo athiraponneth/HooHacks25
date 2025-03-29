@@ -38,15 +38,15 @@ const UserLocation = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Share Your Location</Text>
+        <Text style={styles.title}>share your location</Text>
         <Text style={styles.subtitle}>
-          Please enable location services to enhance your experience
+          please enable location services to enhance your experience
         </Text>
         <TouchableOpacity 
           style={styles.button}
           onPress={handleLocationPress}
         >
-          <Text style={styles.buttonText}>Enable Location</Text>
+          <Text style={styles.buttonText}>enable location</Text>
         </TouchableOpacity>
       </View>
 
@@ -71,49 +71,75 @@ const UserLocation = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: '#F7E6D4',
     padding: 20,
+    marginTop: 50,
   },
   navigationContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 40,
+    gap: 40,
   },
   navArrow: {
-    padding: 20,
+    backgroundColor: '#A47551',
+    padding: 15,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
   },
   arrowText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+    fontFamily: 'Avenir-Medium',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 60,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
+    fontSize: 28,
+    color: '#5C6B73',
+    marginBottom: 20,
+    fontWeight: '600',
+    fontFamily: 'Avenir-Medium',
   },
   subtitle: {
     fontSize: 16,
+    color: '#457B9D',
     textAlign: 'center',
     marginBottom: 32,
-    color: '#666',
+    fontFamily: 'Avenir',
+    paddingHorizontal: 20,
   },
   button: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 24,
+    backgroundColor: '#A47551',
     paddingVertical: 12,
-    borderRadius: 8,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
+    marginTop: 10,
+    fontFamily: 'Avenir',
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+    fontFamily: 'Avenir-Medium',
   },
 });
 
