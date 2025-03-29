@@ -1,23 +1,63 @@
-import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Button,
+  Image,
+  ScrollView,
+  Linking,
+  StyleSheet,
+} from 'react-native';
+import { searchOutfitPhotos } from './pexels';
 
 export default function App() {
+  const [results, setResults] = useState([]);
+
+  const handleSearch = async () => {
+    try {
+      const photos = await searchOutfitPhotos('red hoodie outfit');
+      console.log('Pexels results:', photos); // See this in terminal
+      setResults(photos);
+    } catch (err) {
+      console.error('Error fetching from Pexels:', err);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Hello, Expo!</Text>
-    </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Pexels Outfit Search</Text>
+      <Button title="Search for Outfits" onPress={handleSearch} />
+
+      {results.map((photo) => (
+        <View key={photo.id} style={styles.result}>
+          <Text>{photo.title}</Text>
+          <Image source={{ uri: photo.imageUrl }} style={styles.image} />
+          <Button title="View on Pexels" onPress={() => Linking.openURL(photo.link)} />
+        </View>
+      ))}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    padding: 20,
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
-  text: {
-    fontSize: 20,
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
     fontWeight: 'bold',
+  },
+  result: {
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  image: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    marginVertical: 10,
   },
 });
