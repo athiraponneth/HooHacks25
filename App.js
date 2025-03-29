@@ -64,9 +64,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="SignIn" component={SignInScreen} />
-        <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
-        <Stack.Screen name="OutfitSearch" component={OutfitSearchScreen} />
+        {user ? (
+          <Stack.Screen name="OutfitSearch" component={OutfitSearchScreen} />
+        ) : (
+          <>
+            <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
