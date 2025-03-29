@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
+import SignInScreen from '../SignInScreen';
+import OutfitSearchScreen from '../OutfitSearchScreen';
+
 
 const getLocation = async () => {
   try {
@@ -50,13 +53,13 @@ const UserLocation = ({ navigation }) => {
       <View style={styles.navigationContainer}>
         <TouchableOpacity 
           style={styles.navArrow} 
-          onPress={() => navigation.navigate('TempPreviousScreen')} /*replace this w/ other screen*/
+          onPress={() => navigation.navigate('SignInScreen')}
         >
           <Text style={styles.arrowText}>←</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navArrow} 
-          onPress={() => navigation.navigate('TempNextScreen')} /*replace this w/ other screen*/
+          onPress={() => navigation.navigate('OutfitSearchScreen')}
         >
           <Text style={styles.arrowText}>→</Text>
         </TouchableOpacity>

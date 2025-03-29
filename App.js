@@ -17,7 +17,7 @@ function SignInScreen({ navigation }) {
   const handleSignIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigation.replace('OutfitSearchScreen'); // Navigate to the outfit search screen
+      navigation.replace('UserLocation'); // Navigate to the outfit search screen
     } catch (error) {
       Alert.alert('Error', error.message);
     }
@@ -65,7 +65,11 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          <Stack.Screen name="OutfitSearch" component={OutfitSearchScreen} />
+          <>
+            <Stack.Screen name="UserLocation" component={UserLocation} />
+            <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
+            <Stack.Screen name="SignInScreen" component={SignInScreen} />
+          </>
         ) : (
           <>
             <Stack.Screen name="SignIn" component={SignInScreen} />
@@ -76,7 +80,6 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
 // Styling
 const styles = StyleSheet.create({
   container: {
