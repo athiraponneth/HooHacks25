@@ -4,7 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
 import { auth } from './firebaseConfig'; // Make sure you have firebase config
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import OutfitSearchScreen from './OutfitSearchScreen'; // This is the outfit search screen
+import OutfitSearchScreen from './OutfitSearchScreen'; // Outfit search screen
+import CreateAccountScreen from './CreateAccountScreen'; // Create account screen
 
 // Sign In Screen Component
 function SignInScreen({ navigation }) {
@@ -37,6 +38,10 @@ function SignInScreen({ navigation }) {
         onChangeText={setPassword}
       />
       <Button title="Sign In" onPress={handleSignIn} />
+      <Button
+        title="Don't have an account? Create one"
+        onPress={() => navigation.replace('CreateAccount')}
+      />
     </View>
   );
 }
@@ -60,7 +65,10 @@ export default function App() {
         {user ? (
           <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
         ) : (
-          <Stack.Screen name="SignIn" component={SignInScreen} />
+          <>
+            <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
