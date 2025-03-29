@@ -8,6 +8,7 @@ import OutfitSearchScreen from './OutfitSearchScreen'; // Outfit search screen
 import CreateAccountScreen from './CreateAccountScreen'; // Create account screen
 import UserLocation from './components/UserLocation';
 import logo from './assets/logo.png'; // Logo image
+import WardrobeUpload from './WardrobeUpload';
 
 // Sign In Screen Component
 function SignInScreen({ navigation }) {
@@ -72,6 +73,7 @@ export default function App() {
           <>
             <Stack.Screen name="UserLocation" component={UserLocation} />
             <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
+            <Stack.Screen name="WardrobeUpload" component={WardrobeUpload} />
             <Stack.Screen name="SignInScreen" component={SignInScreen} />
           </>
         ) : (
