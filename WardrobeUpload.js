@@ -28,65 +28,91 @@ const WardrobeUpload = ({ navigation }) => {
   // Request permission to access the media library
   const pickImage = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'We need permission to access your photos');
+      // ✅ Request both camera and media library permissions
+      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+      const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+      if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
+        Alert.alert('Permission Required', 'Camera and gallery access is needed.');
         return;
       }
-
-      // Launch the image picker
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 1,
-      });
-
-      console.log('Image picker result:', JSON.stringify(result));
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const imagePath = result.assets[0].uri;
-        const imageExt = imagePath.split('.').pop();
-        const imageMime = `image/${imageExt}`;
-
-        setIsUploading(true);
-        setUploadStatus('Preparing image...');
-
-        // Fetch the image and convert it to a blob
-        let picture = await fetch(imagePath);
-        picture = await picture.blob();
-
-        // Create a unique key for the image in the S3 bucket
-        const fileName = `uploads/${Date.now()}.${imageExt}`;
-
-        // Define the upload parameters for S3
-        const uploadParams = {
-          Bucket: AWS_S3_BUCKET,
-          Key: fileName,
-          Body: picture,
-          ContentType: imageMime,
-        };
-
-        setUploadStatus('Uploading to server...');
-        console.log('Starting upload with params:', uploadParams);
-
-        // Upload the image to S3
-        const uploadResponse = await s3.upload(uploadParams).promise();
-
-        console.log('Upload successful', uploadResponse);
-        setUploadStatus('Upload complete!');
-        
-        // Create the S3 URL for the uploaded file
-        const s3Url = `https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${fileName}`;
-        
-        Alert.alert(
-          'Upload Successful', 
-          'Your image has been uploaded successfully!',
-          [{ text: 'OK' }]
-        );
-
-        // Call Google Vision API to analyze the uploaded image
-        analyzeImageWithGoogleVision(s3Url);
-      }
+  
+      Alert.alert(
+        'Upload Image',
+        'Choose an option',
+        [
+          {
+            text: 'Take Photo',
+            onPress: async () => {
+                const result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: false,
+                    quality: 1,
+                    cameraType: ImagePicker.CameraType.back,
+                    exif: false, // Try toggling this
+                    videoMaxDuration: 10, // Add even when not using video
+                  });
+              console.log('Camera result:', result); // Debugging
+  
+              if (!result.canceled && result.assets?.length > 0) {
+                uploadImage(result.assets[0].uri);
+              }
+            },
+          },
+          {
+            text: 'Choose from Gallery',
+            onPress: async () => {
+              const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaType.Images,
+                allowsEditing: false,
+                quality: 1,
+              });
+  
+              if (!result.canceled && result.assets?.length > 0) {
+                uploadImage(result.assets[0].uri);
+              }
+            },
+          },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+    } catch (error) {
+      console.error('Image picking error:', error);
+    }
+  };
+  
+  const uploadImage = async (imageUri) => {
+    try {
+      setIsUploading(true);
+      setUploadStatus('Preparing image...');
+  
+      const imageExt = imageUri.split('.').pop();
+      const imageMime = `image/${imageExt}`;
+  
+      let picture = await fetch(imageUri);
+      picture = await picture.blob();
+  
+      const fileName = `uploads/${Date.now()}.${imageExt}`;
+  
+      const uploadParams = {
+        Bucket: AWS_S3_BUCKET,
+        Key: fileName,
+        Body: picture,
+        ContentType: imageMime,
+      };
+  
+      setUploadStatus('Uploading to server...');
+      console.log('Starting upload with params:', uploadParams);
+  
+      const uploadResponse = await s3.upload(uploadParams).promise();
+      console.log('Upload successful', uploadResponse);
+  
+      setUploadStatus('Upload complete!');
+      const s3Url = `https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${fileName}`;
+  
+      Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
+  
+      analyzeImageWithGoogleVision(s3Url);
     } catch (error) {
       console.error('Upload error:', error);
       setUploadStatus(`Upload failed: ${error.message}`);

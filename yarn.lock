@@ -3595,6 +3595,13 @@ expo-asset@~11.0.5:
     invariant "^2.2.4"
     md5-file "^3.2.3"
 
+expo-camera@^16.0.18:
+  version "16.0.18"
+  resolved "https://registry.npmjs.org/expo-camera/-/expo-camera-16.0.18.tgz"
+  integrity sha512-NP5u2yyc+wZc9GdUXH+jcEytyXZwBnHxItMwXoZQQxi4wgltwvs4XfSWjBtRZe1LngnhpBfPyPJV0aShjWlLDg==
+  dependencies:
+    invariant "^2.2.4"
+
 expo-constants@~17.0.8:
   version "17.0.8"
   resolved "https://registry.npmjs.org/expo-constants/-/expo-constants-17.0.8.tgz"
@@ -5810,7 +5817,7 @@ react-native-safe-area-context@^4.12.0, "react-native-safe-area-context@>= 4.0.0
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
 
-react-native-web@~0.19.13:
+react-native-web@*, react-native-web@~0.19.13:
   version "0.19.13"
   resolved "https://registry.npmjs.org/react-native-web/-/react-native-web-0.19.13.tgz"
   integrity sha512-etv3bN8rJglrRCp/uL4p7l8QvUNUC++QwDbdZ8CB7BvZiMvsxfFIRM1j04vxNldG3uo2puRd6OSWR3ibtmc29A==
