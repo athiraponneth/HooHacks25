@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, Text, Button, TextInput, StyleSheet, Alert, Image } from 'react-native';
-import { auth } from './firebaseConfig'; // Make sure you have firebase config
+import { View, Text, TextInput, StyleSheet, Alert, Image, TouchableOpacity } from 'react-native';
+import { auth } from './firebaseConfig';
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import OutfitSearchScreen from './OutfitSearchScreen'; // Outfit search screen
-import CreateAccountScreen from './CreateAccountScreen'; // Create account screen
+import OutfitSearchScreen from './OutfitSearchScreen';
+import CreateAccountScreen from './CreateAccountScreen';
+import GenerateAvatarScreen from './GenerateAvatarScreen';
 import UserLocation from './components/UserLocation';
-import logo from './assets/logo.png'; // Logo image
 import WardrobeUpload from './WardrobeUpload';
+import logo from './assets/logo.png';
 
 // Sign In Screen Component
 function SignInScreen({ navigation }) {
@@ -18,7 +19,7 @@ function SignInScreen({ navigation }) {
   const handleSignIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigation.replace('UserLocation'); // Navigate to the outfit search screen
+      navigation.replace('GenerateAvatarScreen');
     } catch (error) {
       Alert.alert('Error', error.message);
     }
@@ -43,19 +44,20 @@ function SignInScreen({ navigation }) {
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="sign in" onPress={handleSignIn} color="#A47551" fontFamily="Avenir-Medium"/>
-      <Button
-        title="don't have an account? create one"
-        onPress={() => navigation.replace('CreateAccount')}
-        color="#6D4C41"
-      />
+      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+        <Text style={styles.buttonText}>sign in</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.linkButton} onPress={() => navigation.replace('CreateAccount')}>
+        <Text style={styles.link}>don't have an account? create one</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
-// App component with navigation
+// App Component
 export default function App() {
   const [user, setUser] = useState(null);
+  const Stack = createStackNavigator();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -64,22 +66,21 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  const Stack = createStackNavigator();
-
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {user ? (
-          <>
-            <Stack.Screen name="UserLocation" component={UserLocation} />
-            <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
-            <Stack.Screen name="WardrobeUpload" component={WardrobeUpload} />
-            <Stack.Screen name="SignInScreen" component={SignInScreen} />
-          </>
-        ) : (
+        {!user ? (
           <>
             <Stack.Screen name="SignIn" component={SignInScreen} />
             <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+            
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="GenerateAvatarScreen" component={GenerateAvatarScreen} />
+            <Stack.Screen name="UserLocation" component={UserLocation} />
+            <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
+            <Stack.Screen name="WardrobeUpload" component={WardrobeUpload} />
           </>
         )}
       </Stack.Navigator>
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: '#F7E6D4', // Warm cream background
+    backgroundColor: '#F7E6D4',
     padding: 20,
     marginTop: 50,
   },
@@ -105,26 +106,24 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    color: '#5C6B73', // Soft navy
+    color: '#5C6B73',
     marginBottom: 20,
     fontWeight: '600',
-    fontFamily: 'Avenir-Medium', // More playful font, fallbacks to system default if unavailable
   },
   input: {
     width: '90%',
     height: 50,
-    borderColor: '#A8DADC', // Soft blue
+    borderColor: '#A8DADC',
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderRadius: 25, // More rounded corners for softer look
+    borderRadius: 25,
     paddingLeft: 15,
     marginBottom: 15,
     fontSize: 16,
-    color: '#457B9D', // Deeper blue for text
-    fontFamily: 'Avenir', // Matching font
+    color: '#457B9D',
   },
   button: {
-    backgroundColor: '#E76F51', // Soft coral
+    backgroundColor: '#E76F51',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 25,
@@ -133,20 +132,20 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     marginTop: 10,
-    fontFamily: 'Avenir',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
-    fontFamily: 'Avenir-Medium',
+  },
+  linkButton: {
+    marginTop: 15,
   },
   link: {
-    color: '#2A9D8F', // Teal accent
-    marginTop: 15,
-    textAlign: 'center',
+    color: '#2A9D8F',
     fontSize: 16,
     textDecorationLine: 'underline',
-    fontFamily: 'Avenir',
+    textAlign: 'center',
   },
 });
