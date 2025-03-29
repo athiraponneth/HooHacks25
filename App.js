@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import OutfitSearchScreen from './OutfitSearchScreen'; // Outfit search screen
 import CreateAccountScreen from './CreateAccountScreen'; // Create account screen
 import UserLocation from './components/UserLocation';
+import WardrobeUpload from './WardrobeUpload';
 
 
 // Sign In Screen Component
@@ -68,6 +69,7 @@ export default function App() {
           <>
             <Stack.Screen name="UserLocation" component={UserLocation} />
             <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
+            <Stack.Screen name="WardrobeUpload" component={WardrobeUpload} />
             <Stack.Screen name="SignInScreen" component={SignInScreen} />
           </>
         ) : (
