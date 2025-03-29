@@ -26,6 +26,8 @@ const UserLocation = ({ navigation }) => {
   const handleLocationPress = async () => {
     const locationData = await getLocation();
     if (locationData) {
+      console.log('Latitude:', locationData.latitude);
+      console.log('Longitude:', locationData.longitude);
       navigation.navigate('Weather', { location: locationData });
     }
   };
