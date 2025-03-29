@@ -1,10 +1,11 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import WardrobeUpload from "./WardrobeUpload/WardrobeUpload"
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Hello, Expo!</Text>
+      <WardrobeUpload/>
     </View>
   );
 }
