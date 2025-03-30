@@ -60,7 +60,7 @@ export default function ProductRecommendations({ navigation, route }) {
         params: {
           engine: 'google_shopping',
           q: query,
-          api_key: '6e750e34c0de4fdde2025574792f0785d9f5d70110e4a5b98a5b4eb21c1fbaee',
+          api_key: 'INSERT_API_KEY',
           num: 2 // Limit results to 2
         }
       });
