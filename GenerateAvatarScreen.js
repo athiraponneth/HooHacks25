@@ -6,6 +6,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function GenerateAvatarScreen({ navigation }) {
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarId, setAvatarId] = useState(null); // Move useState inside the component
   const [loading, setLoading] = useState(true);
 
   const avatarGeneratorUrl = "https://readyplayer.me/avatar?frameApi"; // Enable API mode
@@ -16,9 +17,14 @@ export default function GenerateAvatarScreen({ navigation }) {
 
       // Check if the message is an avatar export event (user clicked "Next")
       if (message.source === "readyplayerme" && message.eventName === "v1.avatar.exported") {
-        const finalAvatarUrl = message.data.url;
-        setAvatarUrl(finalAvatarUrl);
-        console.log("Avatar finalized:", finalAvatarUrl);
+        const avatarId = message.data.avatarId;  // Assuming the ID is included in the message data
+
+        // Generate the avatar URL based on the ID
+        const generatedAvatarUrl = `https://models.readyplayer.me/${avatarId}.png?size=512&expression=happy&pose=relaxed&camera=fullbody&background=255%2C255%2C255&quality=90`;
+
+        setAvatarUrl(generatedAvatarUrl); // Set the generated URL
+        setAvatarId(avatarId); // Set the avatar ID
+        console.log("Avatar finalized:", generatedAvatarUrl, "Avatar ID:", avatarId);
       }
     } catch (error) {
       console.error("Error parsing message:", error);
