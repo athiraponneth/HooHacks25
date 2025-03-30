@@ -212,6 +212,7 @@ const WardrobeUpload = ({ navigation }) => {
         const labels = data.responses[0].labelAnnotations || [];
         const colors = data.responses[0].imagePropertiesAnnotation?.dominantColors?.colors || [];
 
+
         let description = 'Clothing items: ';
         
         // Collect some labels and describe the clothing and colors
@@ -221,7 +222,7 @@ const WardrobeUpload = ({ navigation }) => {
 
         setImageDescription(description);
 
-        let color = ""
+        let colorName = ""; 
 
         totalRed = 0
         totalGreen = 0
@@ -244,7 +245,6 @@ const WardrobeUpload = ({ navigation }) => {
             const avgBlue = Math.round(totalBlue / colors.length);
     
             const averagedColor = `${avgRed}, ${avgGreen}, ${avgBlue}`;
-            color += averagedColor;
 
             setImageRed(avgRed);
             setImageGreen(avgGreen);
@@ -252,11 +252,8 @@ const WardrobeUpload = ({ navigation }) => {
 
             console.log('Averaged Color:', averagedColor);
 
-            const colorName = await getColorName(avgRed, avgGreen, avgBlue);
+            colorName = await getColorName(avgRed, avgGreen, avgBlue);
             console.log('Color Name:', colorName);
-
-            setImageColor(colorName);
-
 
           }
           
@@ -267,17 +264,12 @@ const WardrobeUpload = ({ navigation }) => {
         const clothingItems = await LLMOutput1(description);
         console.log('Processed by Mistral-7B:', clothingItems);
 
-        setLLMDec(clothingItems);
-
-        console.log(llmDec, imgColor)
-        
-        // Add navigation after logging
 
 
-        if (llmDec && imgColor) {
+        if (clothingItems && colorName) {
             navigation.navigate('OutfitSearchScreen', {
                 clothingItem: clothingItems,
-                clothingColor: imgColor,
+                clothingColor: colorName,
             });
         } else {
             console.error("Navigation aborted: Empty clothing item or color");

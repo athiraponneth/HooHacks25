@@ -84,9 +84,13 @@ export default function OutfitSearchScreen({ navigation, route }) {
   };
 
   async function generateSearchQuery() { 
-    console.log("promt" + clothingItem + " " + clothingColor )
 
-    prompt = "white shirt and blue jeans"
+    const weatherCode = weather.daily.weathercode[0];
+    const weatherDescription = getWeatherDescription(weatherCode);
+
+    console.log("promt" + clothingItem + " " + clothingColor + weatherDescription )
+
+    prompt = `${weatherDescription} outfit ideas with ${clothingColor} ${clothingItem}`
     console.log(prompt)
     
     try {
