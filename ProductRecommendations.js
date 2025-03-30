@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7E6D4',
     padding: 20,
-    marginTop: 50,
+    paddingTop: 120,
   },
   scrollContent: {
     paddingBottom: 100,

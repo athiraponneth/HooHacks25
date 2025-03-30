@@ -54,7 +54,7 @@ export default function GenerateAvatarScreen({ navigation }) {
       <TouchableOpacity 
         style={styles.button} 
         onPress={() => navigation.navigate('LandingPage')}>
-        <Text style={styles.buttonText}>Back to Home</Text>
+        <Text style={styles.buttonText}>back to home</Text>
       </TouchableOpacity>
 
       {/* Show "Continue" button only when the avatar is finalized */}
@@ -62,7 +62,7 @@ export default function GenerateAvatarScreen({ navigation }) {
         <TouchableOpacity 
           style={styles.button} 
           onPress={() => navigation.navigate('ProductRecommendations', { avatarUrl })}>
-          <Text style={styles.buttonText}>Continue to Product Recommendations</Text>
+          <Text style={styles.buttonText}>continue to product recommendations</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -74,11 +74,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#F7E6D4',
   },
   webviewContainer: {
     width: width * 0.9,
-    height: height * 0.8,
+    height: height * 0.7,
     borderRadius: 10,
     overflow: 'hidden',
   },
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 5,
-    marginBottom: 10,
+    marginTop: 10,
     alignItems: 'center',
     width: '80%',
   },

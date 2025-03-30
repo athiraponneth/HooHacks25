@@ -1,37 +1,48 @@
-
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import logo from './assets/logo.png';
 import user from './assets/user.png';
+import red from './assets/red.png';
 import GenerateAvatarScreen from './GenerateAvatarScreen';
 import UserLocation from './components/UserLocation';
-import Profile from './Profile'
+import Profile from './Profile';
+import SignInScreen from './SignInScreen'; 
 
 export default function LandingScreen({ navigation }) {
   return (
     <View style={styles.container}>
-    <TouchableOpacity 
-      style={styles.userIconContainer} 
-      onPress={() => navigation.navigate('Profile') }>
-      <Image source={user} style={styles.userIcon} />
-    </TouchableOpacity>
+      
+      {/* Red icon at the top left corner */}
+      <TouchableOpacity 
+        style={styles.redIconContainer} 
+        onPress={() => navigation.navigate('SignInScreen') } // Navigate to SignIn screen
+      >
+        <Image source={red} style={styles.redIcon} />
+      </TouchableOpacity>
 
-    <View style={styles.container}>
-      <Image source={logo} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.title}>don't stress it, just <Text style={styles.bold}>wearit </Text> :)</Text>
+      {/* User icon at the top right corner */}
       <TouchableOpacity 
-        style={styles.button} 
-        onPress={() => navigation.navigate('GenerateAvatarScreen')}>
-        <Text style={styles.buttonText}>virtual fitting room</Text>
+        style={styles.userIconContainer} 
+        onPress={() => navigation.navigate('Profile') }>
+        <Image source={user} style={styles.userIcon} />
       </TouchableOpacity>
-      <View style={styles.spacing} />
-      <View style={styles.spacing} />
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={() => navigation.navigate('WardrobeUpload')}>
-        <Text style={styles.buttonText}>customize my wardrobe</Text>
-      </TouchableOpacity>
-    </View>
+
+      <View style={styles.container}>
+        <Image source={logo} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.title}>don't stress it, just <Text style={styles.bold}>wearit </Text> :)</Text>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => navigation.navigate('GenerateAvatarScreen')}>
+          <Text style={styles.buttonText}>virtual fitting room</Text>
+        </TouchableOpacity>
+        <View style={styles.spacing} />
+        <View style={styles.spacing} />
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => navigation.navigate('WardrobeUpload')}>
+          <Text style={styles.buttonText}>customize my wardrobe</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -78,6 +89,16 @@ const styles = StyleSheet.create({
     width: 40, 
     height: 40, 
     borderRadius: 20, 
+  },
+  redIconContainer: {
+    position: 'absolute',
+    top: 40,  // Adjust as needed for exact placement
+    left: 20,
+    width: 20
+  },
+  redIcon: {
+    width: 40, 
+    height: 40,
   },
   buttonText: {
     color: '#FFFFFF',
