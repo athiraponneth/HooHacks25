@@ -1,4 +1,4 @@
-const API_KEY = 'o48fCWi4TXdYXu8EkuIL9KMhfUufaC6RirF3P3zKaI5e5YTBRAC2gRlH';
+const API_KEY = 'INSERT_API_KEY';
 
 export async function searchOutfitPhotos(query) {
   const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=10`;
