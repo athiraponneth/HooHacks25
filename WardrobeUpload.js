@@ -26,7 +26,7 @@ const s3 = new AWS.S3();
 const TOGETHER_API_KEY='fc64da8c593f8da107e5a6cbf3791925f81c87b66482dcdc90250752acc993a3'
 
 export async function LLMOutput1(imageAnalysis) { 
-    const prompt = imageAnalysis + 'Analyze the provided list of image labels, return the label that is a clothing type (e.g., shirt, pants, dress). Respond with one word (no more) which must be a clothing item, not a color. Output should be just one word.';
+    const prompt = imageAnalysis + 'Analyze the provided list of image labels, return the label that is a everyday clothing type (e.g., shirt, pants, dress). Respond with one word (no more) which must be a clothing item, not a color. Output should be just one word.';
 
     try {
         const response = await fetch('https://api.together.xyz/v1/chat/completions', {
@@ -258,29 +258,65 @@ const WardrobeUpload = ({ navigation }) => {
     }
   };
 
-  async function getColorName(r, g, b) {
-    console.log("red" + r)
-    try {
-        const response = await fetch(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}&format=json`);
-        console.log(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}`)
-        const responseText = await response.text();
-        console.log('Raw response:', responseText);
+//   async function getColorName(r, g, b) {
+//     console.log("red" + r)
+//     try {
+//         const response = await fetch(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}&format=json`);
+//         console.log(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}`)
+//         const responseText = await response.text();
+//         console.log('Raw response:', responseText);
 
-        // Try parsing it as JSON
-        const data = JSON.parse(responseText);
+//         // Try parsing it as JSON
+//         const data = JSON.parse(responseText);
         
-        if (data.name && data.name.value) {
-            return data.name.value;
-        } else {
-            console.error('Unexpected API response:', data);
-            return 'Unknown Color';
-        }
-    } catch (error) {
-        console.error('Error fetching color name:', error);
-        return 'Unknown Color';
-    }
-  }
+//         if (data.name && data.name.value) {
+//             return data.name.value;
+//         } else {
+//             console.error('Unexpected API response:', data);
+//             return 'Unknown Color';
+//         }
+//     } catch (error) {
+//         console.error('Error fetching color name:', error);
+//         return 'Unknown Color';
+//     }
+//   }
 
+const colors = [
+    ["Black", [0, 0, 0]],
+    ["White", [255, 255, 255]],
+    ["Red", [255, 0, 0]],
+    ["Purple", [128, 0, 128]],
+    ["Green", [0, 128, 0]],
+    ["Yellow", [255, 255, 0]],
+    ["Blue", [0, 0, 255]],
+  ];
+  
+  const distance = (a, b) => {
+    const dx = a[0] - b[0];
+    const dy = a[1] - b[1];
+    const dz = a[2] - b[2];
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  };
+  
+  const findClosest = (pixel) => {
+    let minDistance = Infinity;
+    let closestColor = null;
+    for (let [name, rgb] of colors) {
+      const d = distance(pixel, rgb);
+      if (d < minDistance) {
+        minDistance = d;
+        closestColor = name;
+      }
+    }
+    return closestColor;
+  };
+
+  function getColorName(r, g, b) {
+    const averageColor = [r, g, b]; // Use the RGB values passed into the function
+    const closestColor = findClosest(averageColor); // Find the closest color using findClosest
+
+    return closestColor; // Return the closest color name
+}
   // Function to analyze the image using Google Cloud Vision
   const analyzeImageWithGoogleVision = async (imageUrl) => {
     try {

@@ -1,64 +1,199 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, ScrollView, Linking } from 'react-native';
+import axios from 'axios';
 
 export default function ProductRecommendations({ navigation, route }) {
   const [productRecommendations, setProductRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [recommendationsFetched, setRecommendationsFetched] = useState(false);
   
   // Get the avatar URL passed from the previous screen
   const { avatarUrl } = route.params;
   
   useEffect(() => {
-    if (avatarUrl) {
-      getClothing(avatarUrl);
+    if (avatarUrl && !recommendationsFetched) {
+      // Set state variable correctly
+      setRecommendationsFetched(true);
+      
+      // Fetch both product types
+      fetchProductRecommendations();
     }
   }, [avatarUrl]);
   
-  const getClothing = async (url) => {
+  const fetchProductRecommendations = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch both yellow hoodie and blue jeans
+      const hoodiePromise = fetchRecommendation("yellow hoodie");
+      const jeansPromise = fetchRecommendation("blue jeans");
+      
+      // Wait for both API calls to complete
+      const [hoodieResults, jeansResults] = await Promise.all([hoodiePromise, jeansPromise]);
+      
+      // Combine results
+      const combinedResults = [...(hoodieResults || []), ...(jeansResults || [])];
+      
+      if (combinedResults.length > 0) {
+        setProductRecommendations(combinedResults);
+      } else {
+        setError('No product results found');
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+      setError('Failed to fetch product recommendations');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchRecommendation = async (query) => {
+    try {
+      console.log(`Fetching recommendations for: ${query}`);
+      
+      // Correctly formatted SERP API URL with parameters
+      const response = await axios.get('https://serpapi.com/search.json', {
+        params: {
+          engine: 'google_shopping',
+          q: query,
+          api_key: '6e750e34c0de4fdde2025574792f0785d9f5d70110e4a5b98a5b4eb21c1fbaee',
+          num: 2 // Limit results to 2
+        }
+      });
+      
+      if (response.data && response.data.shopping_results) {
+        // Map SERP API results to a more detailed format
+        return response.data.shopping_results.slice(0, 2).map(item => {
+          // Get category based on query
+          const category = query.includes("hoodie") ? "Hoodie" : "Jeans";
+          
+          return {
+            id: item.position || Math.random().toString(),
+            name: item.title || "Product",
+            price: item.price || "Price not available",
+            originalPrice: item.price_raw ? `$${(item.price_raw * 1.3).toFixed(2)}` : null,
+            discount: item.price_raw ? "30% off" : null,
+            imageUrl: item.thumbnail,
+            category: category,
+            brand: item.source || "Unknown brand",
+            rating: item.rating || 4.5,
+            reviews: item.reviews || Math.floor(Math.random() * 1000),
+            color: query.includes("yellow") ? "#FFD700" : "#4169E1", // Yellow or Blue
+            link: item.link || "#",
+            metadata: response.data.search_metadata || {},
+            store: {
+              name: item.source || "Online Store",
+              logo: item.source_icon,
+              payment_methods: "Affirm accepted",
+              shipping: "Free",
+              inStock: true,
+              returns: "30-day returns"
+            }
+          };
+        });
+      }
+      return [];
+    } catch (error) {
+      console.error(`Error fetching ${query}:`, error);
+      return [];
+    }
+  };
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>oops!</Text>
+          <Text style={styles.subtitle}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.buttonText}>go back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>loading</Text>
+          <ActivityIndicator size="large" color="#A47551" style={styles.loadingIndicator} />
+        </View>
+      </View>
+    );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Product Recommendations</Text>
-      
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#E76F51" />
-          <Text style={styles.loadingText}>Finding perfect matches...</Text>
-        </View>
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : productRecommendations.length > 0 ? (
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.recommendations}>
-            {productRecommendations.map((product) => (
-              <TouchableOpacity 
-                key={product.id} 
-                style={styles.productCard}
-                onPress={() => handleSelectProduct(product)}
-              >
-                <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
-                <View style={styles.productInfo}>
-                  <Text style={styles.productName}>{product.name}</Text>
-                  <Text style={styles.productPrice}>{product.price}</Text>
-                  <View style={[styles.colorSwatch, { backgroundColor: product.color }]} />
-                </View>
-              </TouchableOpacity>
-            ))}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          <Text style={styles.title}>product recommendations</Text>
+          
+          <View style={styles.categoryContainer}>
+            <Text style={styles.categoryText}>
+              Based on your style preferences
+            </Text>
           </View>
-        </ScrollView>
-      ) : (
-        <Text style={styles.noResultsText}>No recommendations available for this avatar.</Text>
-      )}
+          
+          {productRecommendations.length > 0 && (
+            <Text style={styles.resultsTitle}>shopping inspiration</Text>
+          )}
+          
+          {productRecommendations.map((product) => (
+            <View key={product.id} style={styles.resultCard}>
+              <Image source={{ uri: product.imageUrl }} style={styles.image} />
+              <Text style={styles.productName}>{product.name}</Text>
+              
+              <View style={styles.detailsContainer}>
+                <View style={styles.priceRow}>
+                  <Text style={styles.productPrice}>{product.price}</Text>
+                  {product.originalPrice && (
+                    <Text style={styles.originalPrice}>{product.originalPrice}</Text>
+                  )}
+                </View>
+                
+                <View style={styles.ratingRow}>
+                  <Text style={styles.ratingText}>★ {product.rating}</Text>
+                  <Text style={styles.reviewsText}>({product.reviews} reviews)</Text>
+                </View>
+                
+                <View style={styles.storeInfo}>
+                  <Text style={styles.storeText}>
+                    {product.store.name} • {product.store.shipping}
+                  </Text>
+                </View>
+              </View>
+              
+              <TouchableOpacity 
+                style={styles.viewButton}
+                onPress={() => Linking.openURL(product.link)}
+              >
+                <Text style={styles.viewButtonText}>view product</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
       
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('LandingPage')}>
-        <Text style={styles.buttonText}>Back to Home</Text>
-      </TouchableOpacity>
+      <View style={styles.navigationContainer}>
+        <TouchableOpacity 
+          style={styles.navArrow}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.arrowText}>←</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.navArrow}
+          onPress={() => navigation.navigate('LandingPage')}
+        >
+          <Text style={styles.arrowText}>→</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -66,89 +201,84 @@ export default function ProductRecommendations({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7E6D4',
     padding: 20,
+    marginTop: 50,
   },
-  header: {
-    fontSize: 24,
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    paddingBottom: 60,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 40,
+    gap: 40,
+  },
+  navArrow: {
+    backgroundColor: '#E76F51',
+    padding: 15,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  arrowText: {
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Avenir-Medium',
+  },
+  title: {
+    fontSize: 28,
+    color: '#5C6B73',
     marginBottom: 20,
+    fontWeight: '600',
+    fontFamily: 'Avenir-Medium',
     textAlign: 'center',
   },
-  scrollView: {
-    flex: 1,
-    width: '100%',
-  },
-  recommendations: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  productCard: {
-    padding: 15,
+  resultsTitle: {
+    fontSize: 24,
+    color: '#5C6B73',
+    marginTop: 30,
     marginBottom: 15,
-    borderRadius: 10,
-    backgroundColor: '#f8f8f8',
+    fontWeight: '600',
+    fontFamily: 'Avenir-Medium',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#457B9D',
+    textAlign: 'center',
+    marginBottom: 32,
+    fontFamily: 'Avenir',
+    paddingHorizontal: 20,
+  },
+  categoryContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 15,
+    padding: 20,
+    width: '90%',
+    alignItems: 'center',
+    marginBottom: 30,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
+    shadowRadius: 4,
+    elevation: 2,
   },
-  productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginRight: 15,
-  },
-  productInfo: {
-    flex: 1,
-  },
-  productName: {
+  categoryText: {
     fontSize: 18,
+    color: '#5C6B73',
     fontWeight: '500',
-    marginBottom: 5,
-  },
-  productPrice: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#E76F51',
-    marginBottom: 5,
-  },
-  colorSwatch: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#888',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 30,
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#e74c3c',
-    textAlign: 'center',
-  },
-  noResultsText: {
-    fontSize: 16,
-    color: '#888',
-    textAlign: 'center',
-    marginTop: 20,
+    fontFamily: 'Avenir-Medium',
   },
   button: {
     backgroundColor: '#E76F51',
@@ -159,15 +289,102 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 5,
-    marginTop: 20,
-    alignItems: 'center',
-    alignSelf: 'center',
-    width: '80%',
+    marginTop: 10,
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
-    textAlign: 'center',
+    fontFamily: 'Avenir-Medium',
   },
+  loadingIndicator: {
+    marginTop: 20,
+  },
+  resultCard: {
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 15,
+    width: '90%',
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  image: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  productName: {
+    fontSize: 16,
+    color: '#5C6B73',
+    fontFamily: 'Avenir',
+    marginVertical: 10,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  detailsContainer: {
+    width: '100%',
+    marginBottom: 15,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    justifyContent: 'center',
+  },
+  productPrice: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#E76F51',
+    marginRight: 8,
+    fontFamily: 'Avenir-Medium',
+  },
+  originalPrice: {
+    fontSize: 14,
+    color: '#888',
+    textDecorationLine: 'line-through',
+    fontFamily: 'Avenir',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    justifyContent: 'center',
+  },
+  ratingText: {
+    color: '#FFB900',
+    fontSize: 14,
+    marginRight: 6,
+    fontWeight: '500',
+    fontFamily: 'Avenir-Medium',
+  },
+  reviewsText: {
+    fontSize: 13,
+    color: '#707070',
+    fontFamily: 'Avenir',
+  },
+  storeInfo: {
+    alignItems: 'center',
+  },
+  storeText: {
+    fontSize: 13,
+    color: '#505050',
+    fontFamily: 'Avenir',
+  },
+  viewButton: {
+    backgroundColor: '#E76F51',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 5,
+  },
+  viewButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'Avenir-Medium',
+  }
 });

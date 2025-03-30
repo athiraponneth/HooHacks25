@@ -89,7 +89,7 @@ export default function OutfitSearchScreen({ navigation, route }) {
     const weatherCode = weatherData.daily.weathercode[0];
     const weatherDescription = getWeatherDescription(weatherCode);
 
-    const prompt = `outfit ideas with ${clothingColor || ''} ${clothingItem || ''} in ${weatherDescription || ''} weather`.trim();
+    const prompt = `outfit with ${clothingColor || ''} ${clothingItem || ''}`.trim();
     console.log("Search prompt:", prompt);
     
     try {
@@ -188,8 +188,9 @@ export default function OutfitSearchScreen({ navigation, route }) {
             disabled={isLoading}
           >
             <Text style={styles.buttonText}>
-              {isLoading ? 'searching...' : 'find outfit ideas'}
+              {isLoading ? 'searching...' : `find outfit ideas with your ${clothingColor} ${clothingItem}`}
             </Text>
+
           </TouchableOpacity>
           
           {isLoading && (
