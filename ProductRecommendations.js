@@ -29,8 +29,8 @@ export default function ProductRecommendations({ navigation, route }) {
 
       
 
-      //const hoodiePromise = fetchRecommendation("yellow hoodie");
-      //const jeansPromise = fetchRecommendation("blue jeans");
+      const hoodiePromise = fetchRecommendation("yellow hoodie");
+      const jeansPromise = fetchRecommendation("blue jeans");
       
       // Wait for both API calls to complete
       const [hoodieResults, jeansResults] = await Promise.all([hoodiePromise, jeansPromise]);
