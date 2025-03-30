@@ -91,7 +91,7 @@ export default function OutfitSearchScreen({ navigation, route }) {
 
     const prompt = `outfits with ${clothingColor || ''} ${clothingItem || ''}`.trim();
     console.log("Search prompt:", prompt);
-    
+    //comment
     try {
         const response = await fetch('https://api.together.xyz/v1/chat/completions', {
             method: 'POST',
