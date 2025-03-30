@@ -28,7 +28,7 @@ export default function LandingScreen({ navigation }) {
       <View style={styles.spacing} />
       <TouchableOpacity 
         style={styles.button} 
-        onPress={() => navigation.navigate('UserLocation')}>
+        onPress={() => navigation.navigate('WardrobeUpload')}>
         <Text style={styles.buttonText}>customize my wardrobe</Text>
       </TouchableOpacity>
     </View>
