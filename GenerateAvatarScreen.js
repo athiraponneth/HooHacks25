@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: 'center',
     width: '80%',
+    marginTop: 20, 
   },
   buttonText: {
     color: '#FFFFFF',

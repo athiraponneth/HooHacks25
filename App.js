@@ -76,22 +76,20 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!user ? (
           <>
-            <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="SignInScreen" component={SignInScreen} />
             <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
             <Stack.Screen name="LandingPage" component={LandingPage} />
-            <Stack.Screen name="User Location" component={UserLocation} />
-
+            <Stack.Screen name="UserLocation" component={UserLocation} />
           </>
         ) : (
           <>
-            <Stack.Screen name="GenerateAvatarScreen" component={GenerateAvatarScreen} />
             <Stack.Screen name="LandingPage" component={LandingPage} />
-            <Stack.Screen name="UserLocation" component={UserLocation} />
-            <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
+            <Stack.Screen name="GenerateAvatarScreen" component={GenerateAvatarScreen} />
             <Stack.Screen name="WardrobeUpload" component={WardrobeUpload} />
             <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="SignInScreen" component={SignInScreen} />
+            <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
             <Stack.Screen name="ProductRecommendations" component={ProductRecommendations} />
-
           </>
         )}
       </Stack.Navigator>
@@ -107,7 +105,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F7E6D4',
     padding: 20,
-    marginTop: 50,
+    paddingTop: 50,
+    alignContent: 'center',
   },
   logo: {
     width: 200,

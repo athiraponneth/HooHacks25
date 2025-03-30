@@ -14,6 +14,7 @@ export default function Profile() {
           selectedValue={selectedMode}
           style={styles.picker}
           onValueChange={(itemValue) => setSelectedMode(itemValue)}
+          itemStyle={styles.pickerItem} // Style applied to items in the picker
         >
           <Picker.Item label="Casual" value="casual" />
           <Picker.Item label="Professional" value="professional" />
@@ -45,19 +46,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     color: '#5C6B73',
-    marginBottom: 10,
+    marginTop: 150,
   },
   pickerContainer: {
     width: '80%',
     backgroundColor: '#ffffff',
     borderRadius: 10,
-    borderColor: '#E76F51',
+    borderColor: '#E76F51', // Orange border
     borderWidth: 1,
     marginBottom: 20,
   },
   picker: {
     height: 50,
     width: '100%',
+    color: '#E76F51', // Text color of the selected item
+  },
+  pickerItem: {
+    color: '#E76F51', // Orange color for the text inside the dropdown
   },
   button: {
     backgroundColor: '#E76F51',

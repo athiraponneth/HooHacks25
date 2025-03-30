@@ -215,7 +215,7 @@ export default function OutfitSearchScreen({ navigation, route }) {
         </View>
       </ScrollView>
       
-      <View style={styles.navigationContainer}>
+      {/* <View style={styles.navigationContainer}>
         <TouchableOpacity 
           style={styles.navArrow}
           onPress={() => navigation.navigate('WardrobeUpload')}
@@ -228,7 +228,7 @@ export default function OutfitSearchScreen({ navigation, route }) {
         >
           <Text style={styles.arrowText}>→</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -238,7 +238,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7E6D4',
     padding: 20,
-    marginTop: 50,
+    paddingTop: 150,
+    alignContent: 'center',
   },
   scrollContent: {
     paddingBottom: 100,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+
     paddingHorizontal: 20,
     position: 'absolute',
     bottom: 40,

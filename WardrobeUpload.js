@@ -562,7 +562,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F7E6D4',
     padding: 20,
-    marginTop: 50,
+    paddingTop: 170,
+    alignContent: 'center',
   },
   content: {
     flex: 1,
