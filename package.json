@@ -31,7 +31,8 @@
     "react-native-webview": "^13.13.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@types/react": "^18.3.20"
   },
   "private": true
 }

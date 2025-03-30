@@ -22,10 +22,51 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
+const TOGETHER_API_KEY='fc64da8c593f8da107e5a6cbf3791925f81c87b66482dcdc90250752acc993a3'
+
+export async function LLMOutput1(imageAnalysis) { 
+
+    const prompt = imageAnalysis + 'Analyze the provided list of image labels, return the label that is a clothing type (e.g., shirt, pants, dress). Respond with one word (no more) which must be a clothing item, not a color. Output should be just one word.';
+
+    try {
+        const response = await fetch('https://api.together.xyz/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${TOGETHER_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'mistralai/Mistral-7B-Instruct-v0.1',
+                messages: [
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 100
+            })
+        });
+
+        const data = await response.json();
+        const clothingList = data.choices[0].message.content.trim();
+        
+        console.log('Image Analysis:', imageAnalysis);
+        console.log('Extracted Clothing Items:', clothingList);
+        
+        return clothingList;
+    } catch (error) {
+        console.error('Error extracting clothing items:', error);
+        return '';
+    }
+}
+
 const WardrobeUpload = ({ navigation }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(null);
   const [imageDescription, setImageDescription] = useState('');
+  const [imageRed, setImageRed] = useState('');
+  const [imageBlue, setImageBlue] = useState('');
+  const [imageGreen, setImageGreen] = useState('');
+  const [imgColor, setImageColor] = useState('');
+  const [llmDec, setLLMDec] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userImages, setUserImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +89,6 @@ const WardrobeUpload = ({ navigation }) => {
     getCurrentUser();
   }, []);
 
-  // Function to fetch user's images from S3
   const fetchUserImages = async (email) => {
     try {
       setIsLoading(true);
@@ -217,6 +257,31 @@ const WardrobeUpload = ({ navigation }) => {
     }
   };
 
+  async function getColorName(r, g, b) {
+
+    console.log("red" + r)
+    try {
+        const response = await fetch(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}&format=json`);
+        console.log(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}`)
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        // Try parsing it as JSON
+        const data = JSON.parse(responseText);
+        
+        if (data.name && data.name.value) {
+            return data.name.value;
+        } else {
+            console.error('Unexpected API response:', data);
+            return 'Unknown Color';
+        }
+    } catch (error) {
+        console.error('Error fetching color name:', error);
+        return 'Unknown Color';
+    }
+}
+
+
   // Function to analyze the image using Google Cloud Vision
   const analyzeImageWithGoogleVision = async (imageUrl) => {
     try {
@@ -267,27 +332,70 @@ const WardrobeUpload = ({ navigation }) => {
         const labels = data.responses[0].labelAnnotations || [];
         const colors = data.responses[0].imagePropertiesAnnotation?.dominantColors?.colors || [];
 
+
         let description = 'Clothing items: ';
         
         // Collect some labels and describe the clothing and colors
         labels.forEach((label) => {
           description += `${label.description}, `;
         });
-        
-        if (colors.length > 0) {
-          description += 'Colors: ';
-          colors.forEach((color) => {
-            // Retrieve the RGB values
-            const red = color.color.red;
-            const green = color.color.green;
-            const blue = color.color.blue;
-    
-            // Add the RGB color description
-            description += `Red(${red}), Green(${green}), Blue(${blue}); `;
-          });
-        }
 
         setImageDescription(description);
+
+        let colorName = ""; 
+
+        totalRed = 0
+        totalGreen = 0
+        totalBlue = 0
+
+        if (colors.length > 0) {
+                
+            colors.forEach((color) => {
+              const red = color.color.red;
+              const green = color.color.green;
+              const blue = color.color.blue;
+              
+              totalRed += red;
+              totalGreen += green;
+              totalBlue += blue;
+            });
+    
+            const avgRed = Math.round(totalRed / colors.length);
+            const avgGreen = Math.round(totalGreen / colors.length);
+            const avgBlue = Math.round(totalBlue / colors.length);
+    
+            const averagedColor = `${avgRed}, ${avgGreen}, ${avgBlue}`;
+
+            setImageRed(avgRed);
+            setImageGreen(avgGreen);
+            setImageBlue(avgBlue);
+
+            console.log('Averaged Color:', averagedColor);
+
+            colorName = await getColorName(avgRed, avgGreen, avgBlue);
+            console.log('Color Name:', colorName);
+
+          }
+          
+
+
+        
+        // Process the description with Mistral-7B and navigate after logging
+        const clothingItems = await LLMOutput1(description);
+        console.log('Processed by Mistral-7B:', clothingItems);
+
+
+
+        if (clothingItems && colorName) {
+            navigation.navigate('OutfitSearchScreen', {
+                clothingItem: clothingItems,
+                clothingColor: colorName,
+            });
+        } else {
+            console.error("Navigation aborted: Empty clothing item or color");
+        }
+          
+
       } else {
         setImageDescription('No relevant labels detected.');
       }
@@ -332,6 +440,7 @@ const WardrobeUpload = ({ navigation }) => {
         <View style={styles.resultContainer}>
           <Text style={styles.resultTitle}>Image Analysis:</Text>
           <Text style={styles.resultText}>{imageDescription}</Text>
+          <Text style={styles.resultText}></Text>
         </View>
       )}
       

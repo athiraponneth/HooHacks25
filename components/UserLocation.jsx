@@ -2,10 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
 import SignInScreen from '../SignInScreen';
-import OutfitSearchScreen from '../OutfitSearchScreen';
+import WardrobeUpload from '../WardrobeUpload';
 
-
-const getLocation = async () => {
+export const getLocation = async () => {
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
     
@@ -17,7 +16,7 @@ const getLocation = async () => {
     const location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
     
-    return { latitude, longitude };
+    return [latitude, longitude];
   } catch (error) {
     console.error('Error getting location:', error);
     alert('Error getting location');
@@ -25,7 +24,7 @@ const getLocation = async () => {
   }
 };
 
-const UserLocation = ({ navigation }) => {
+export const UserLocation = ({ navigation }) => {
   const handleLocationPress = async () => {
     const locationData = await getLocation();
     if (locationData) {
@@ -59,7 +58,7 @@ const UserLocation = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navArrow} 
-          onPress={() => navigation.navigate('OutfitSearchScreen')}
+          onPress={() => navigation.navigate('WardrobeUpload')}
         >
           <Text style={styles.arrowText}>→</Text>
         </TouchableOpacity>
