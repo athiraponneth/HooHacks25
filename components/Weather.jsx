@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import * as UserLocation from './UserLocation'
+import { getLocation } from './UserLocation'; // Import the function correctly
 import * as Location from 'expo-location';
 
-
-const API_KEY='400c0b2f1c1c6dab405313f0d12dfe91' //BAD
+const API_KEY = '400c0b2f1c1c6dab405313f0d12dfe91'; // Avoid exposing API keys in your frontend
 
 const getWeatherDescription = (code) => {
   const weatherCodes = {
@@ -37,22 +36,20 @@ const getWeatherDescription = (code) => {
 };
 
 export default function WeatherComponent() {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [location, setLocation] = useState(null);
   const [weather, setWeather] = useState(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+    const fetchWeather = async () => {
+      const coords = await getLocation();
+      if (!coords) {
+        setErrorMsg('Failed to get location');
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      // let latitude = parseFloat(location.coords.latitude);
-      // let longitude = parseFloat(location.coords.longitude);
-      setLocation(location);
+      const [latitude, longitude] = coords;
+      setLocation({ latitude, longitude });
 
       try {
         const response = await fetch(
@@ -63,13 +60,15 @@ export default function WeatherComponent() {
       } catch (error) {
         setErrorMsg('Error fetching weather data');
       }
-    })();
+    };
+
+    fetchWeather();
   }, []);
 
   if (errorMsg) {
     return <Text>{errorMsg}</Text>;
   }
-  
+
   if (!weather) {
     return <Text>Loading...</Text>;
   }
