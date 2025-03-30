@@ -7,12 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import UserLocation from './components/UserLocation';
 
 // AWS configuration
-const AWS_ACCESS_KEY_ID = "AKIATE5EMQZENR2OLDOF";
-const AWS_SECRET_ACCESS_KEY = "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";
-const AWS_REGION = "us-east-1";
-const AWS_S3_BUCKET = "hoohacks25";
+const AWS_ACCESS_KEY_ID = "INSERT_KEY";
+const AWS_SECRET_ACCESS_KEY = "INSERT_KEY";
+const AWS_REGION = "INSERT_KEY";
+const AWS_S3_BUCKET = "INSERT_KEY";
 
-const GOOGLE_CLOUD_API_KEY = "AIzaSyBWlsjXEeOMPSC1Kka9v3JyYUMQ9BPAibc";
+const GOOGLE_CLOUD_API_KEY = "INSERT_KEY";
 
 // Initialize AWS S3
 AWS.config.update({
