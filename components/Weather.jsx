@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { getLocation } from './UserLocation'; // Import the function correctly
 import * as Location from 'expo-location';
 
-const API_KEY = '400c0b2f1c1c6dab405313f0d12dfe91'; // Avoid exposing API keys in your frontend
+const API_KEY = 'INSERT_API_KEY'; 
 
 const getWeatherDescription = (code) => {
   const weatherCodes = {
