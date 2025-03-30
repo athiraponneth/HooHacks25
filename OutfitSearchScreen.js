@@ -13,8 +13,8 @@ import { getLocation } from './components/UserLocation';
 import { searchOutfitPhotos } from './pexels';
 import * as Location from 'expo-location';
 
-const API_KEY = '400c0b2f1c1c6dab405313f0d12dfe91';
-const TOGETHER_API_KEY = 'fc64da8c593f8da107e5a6cbf3791925f81c87b66482dcdc90250752acc993a3';
+const API_KEY = 'INSERT_API_KEY';
+const TOGETHER_API_KEY = 'iNSERT_API_KEY';
 
 const getWeatherDescription = (code) => {
   const weatherCodes = {
