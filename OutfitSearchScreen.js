@@ -47,7 +47,9 @@ const getWeatherDescription = (code) => {
   return weatherCodes[code] || 'Unknown weather condition';
 };
 
-export default function OutfitSearchScreen({ navigation }) {
+export default function OutfitSearchScreen({ navigation, route }) {
+  const { clothingItem, clothingColor } = route.params || {};
+
   const [location, setLocation] = useState(null);
   const [weather, setWeather] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -55,6 +57,7 @@ export default function OutfitSearchScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    console.log('Route Params:', route.params);
     fetchWeather();
     generateSearchQuery();
   }, []);
@@ -81,8 +84,9 @@ export default function OutfitSearchScreen({ navigation }) {
   };
 
   async function generateSearchQuery() { 
-    // const prompt = `Given a list of clothing items ${WardrobeUpload.LLMOutput1}, create a query that takes in the weather data ${weather} and create a simple query that can be passed on to Pexels API to find similar outfits!`;
-    const prompt = `black shirt + black jeans`
+    console.log("promt" + clothingItem + " " + clothingColor )
+
+    prompt = "white shirt and blue jeans"
     console.log(prompt)
     
     try {
@@ -110,6 +114,8 @@ export default function OutfitSearchScreen({ navigation }) {
   }
 
   const handleSearch = async () => {
+    console.log(clothingItem + " " + clothingColor)
+
     try {
       if (!searchQuery) await generateSearchQuery();
       const photos = await searchOutfitPhotos(searchQuery);

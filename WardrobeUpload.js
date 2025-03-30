@@ -23,10 +23,8 @@ const s3 = new AWS.S3();
 const TOGETHER_API_KEY='fc64da8c593f8da107e5a6cbf3791925f81c87b66482dcdc90250752acc993a3'
 
 export async function LLMOutput1(imageAnalysis) { 
-    const prompt = `You are a fashion expert. Analyze the following image description and color values. 
-    1. Convert the RGB values to their closest matching color names (e.g., burgundy, navy blue, forest green, beige, etc.)
-    2. Format the output as a comma-separated list of items with their colors
-    Image Analysis: ${imageAnalysis}`;;
+
+    const prompt = imageAnalysis + 'Analyze the provided list of image labels, return the label that is a clothing type (e.g., shirt, pants, dress). Respond with one word (no more) which must be a clothing item, not a color. Output should be just one word.';
 
     try {
         const response = await fetch('https://api.together.xyz/v1/chat/completions', {
@@ -62,6 +60,12 @@ const WardrobeUpload = ({ navigation }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(null);
   const [imageDescription, setImageDescription] = useState('');
+  const [imageRed, setImageRed] = useState('');
+  const [imageBlue, setImageBlue] = useState('');
+  const [imageGreen, setImageGreen] = useState('');
+  const [imgColor, setImageColor] = useState('');
+  const [llmDec, setLLMDec] = useState('');
+
 
   // Request permission to access the media library
   const pickImage = async () => {
@@ -110,7 +114,6 @@ const WardrobeUpload = ({ navigation }) => {
         // Upload the image to S3
         const uploadResponse = await s3.upload(uploadParams).promise();
 
-        console.log('Upload successful', uploadResponse);
         setUploadStatus('Upload complete!');
         
         // Create the S3 URL for the uploaded file
@@ -133,6 +136,31 @@ const WardrobeUpload = ({ navigation }) => {
       setIsUploading(false);
     }
   };
+
+  async function getColorName(r, g, b) {
+
+    console.log("red" + r)
+    try {
+        const response = await fetch(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}&format=json`);
+        console.log(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}`)
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        // Try parsing it as JSON
+        const data = JSON.parse(responseText);
+        
+        if (data.name && data.name.value) {
+            return data.name.value;
+        } else {
+            console.error('Unexpected API response:', data);
+            return 'Unknown Color';
+        }
+    } catch (error) {
+        console.error('Error fetching color name:', error);
+        return 'Unknown Color';
+    }
+}
+
 
   // Function to analyze the image using Google Cloud Vision
   const analyzeImageWithGoogleVision = async (imageUrl) => {
@@ -190,25 +218,71 @@ const WardrobeUpload = ({ navigation }) => {
         labels.forEach((label) => {
           description += `${label.description}, `;
         });
-        
-        if (colors.length > 0) {
-          description += 'Colors: ';
-          colors.forEach((color) => {
-            const red = color.color.red;
-            const green = color.color.green;
-            const blue = color.color.blue;
-            description += `Red(${red}), Green(${green}), Blue(${blue}); `;
-          });
-        }
 
         setImageDescription(description);
+
+        let color = ""
+
+        totalRed = 0
+        totalGreen = 0
+        totalBlue = 0
+
+        if (colors.length > 0) {
+                
+            colors.forEach((color) => {
+              const red = color.color.red;
+              const green = color.color.green;
+              const blue = color.color.blue;
+              
+              totalRed += red;
+              totalGreen += green;
+              totalBlue += blue;
+            });
+    
+            const avgRed = Math.round(totalRed / colors.length);
+            const avgGreen = Math.round(totalGreen / colors.length);
+            const avgBlue = Math.round(totalBlue / colors.length);
+    
+            const averagedColor = `${avgRed}, ${avgGreen}, ${avgBlue}`;
+            color += averagedColor;
+
+            setImageRed(avgRed);
+            setImageGreen(avgGreen);
+            setImageBlue(avgBlue);
+
+            console.log('Averaged Color:', averagedColor);
+
+            const colorName = await getColorName(avgRed, avgGreen, avgBlue);
+            console.log('Color Name:', colorName);
+
+            setImageColor(colorName);
+
+
+          }
+          
+
+
         
         // Process the description with Mistral-7B and navigate after logging
         const clothingItems = await LLMOutput1(description);
         console.log('Processed by Mistral-7B:', clothingItems);
+
+        setLLMDec(clothingItems);
+
+        console.log(llmDec, imgColor)
         
         // Add navigation after logging
-        navigation.navigate('OutfitSearchScreen');
+
+
+        if (llmDec && imgColor) {
+            navigation.navigate('OutfitSearchScreen', {
+                clothingItem: clothingItems,
+                clothingColor: imgColor,
+            });
+        } else {
+            console.error("Navigation aborted: Empty clothing item or color");
+        }
+          
 
       } else {
         setImageDescription('No relevant labels detected.');
