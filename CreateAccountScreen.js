@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Alert, Image, TouchableOpacity } from 'react-native';
 import { auth } from './firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import logo from './assets/logo.png';
 
 export default function CreateAccountScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -22,7 +23,7 @@ export default function CreateAccountScreen({ navigation }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       Alert.alert('Account Created', `Welcome ${userCredential.user.email}`);
-      navigation.navigate('GenerateAvatar'); // Navigate back to SignIn screen after account creation
+      navigation.navigate('GenerateAvatarScreen');
     } catch (error) {
       switch (error.code) {
         case 'auth/invalid-email':
@@ -42,31 +43,38 @@ export default function CreateAccountScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Image source={logo} style={styles.logo} resizeMode="contain" />
+      <Text style={styles.title}>create account</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="email"
+        placeholderTextColor="#7A6F60"
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="password"
+        placeholderTextColor="#7A6F60"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       <TextInput
         style={styles.input}
-        placeholder="Confirm Password"
+        placeholder="confirm password"
+        placeholderTextColor="#7A6F60"
         secureTextEntry
         value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
-      <Button title="Create Account" onPress={handleCreateAccount} />
-      <Text style={styles.link} onPress={() => navigation.navigate('SignIn')}>
-        Already have an account? Sign In.
-      </Text>
+      <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
+        <Text style={styles.buttonText}>create account</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('SignIn')}>
+        <Text style={styles.link}>already have an account? sign in</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -74,19 +82,60 @@ export default function CreateAccountScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 16,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: '#F7E6D4',
+    padding: 20,
+    marginTop: 50,
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  title: {
+    fontSize: 28,
+    color: '#5C6B73',
+    marginBottom: 20,
+    fontWeight: '600',
   },
   input: {
+    width: '90%',
     height: 50,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingLeft: 8,
+    borderColor: '#A8DADC',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderRadius: 25,
+    paddingLeft: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    color: '#457B9D',
+  },
+  button: {
+    backgroundColor: '#E76F51',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  linkButton: {
+    marginTop: 15,
   },
   link: {
-    color: 'blue',
-    marginTop: 10,
+    color: '#2A9D8F',
+    fontSize: 16,
+    textDecorationLine: 'underline',
     textAlign: 'center',
   },
 });
