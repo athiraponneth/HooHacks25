@@ -26,7 +26,7 @@ const s3 = new AWS.S3();
 const TOGETHER_API_KEY='fc64da8c593f8da107e5a6cbf3791925f81c87b66482dcdc90250752acc993a3'
 
 export async function LLMOutput1(imageAnalysis) { 
-    const prompt = imageAnalysis + 'Analyze the provided list of image labels, return the label that is a clothing type (e.g., shirt, pants, dress). Respond with one word (no more) which must be a clothing item, not a color. Output should be just one word.';
+    const prompt = imageAnalysis + 'Analyze the provided list of image labels, return the label that is a everyday clothing type (e.g., shirt, pants, dress). Respond with one word (no more) which must be a clothing item, not a color. Output should be just one word.';
 
     try {
         const response = await fetch('https://api.together.xyz/v1/chat/completions', {
@@ -70,6 +70,7 @@ const WardrobeUpload = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState('');
   const [userImages, setUserImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     const getCurrentUser = () => {
@@ -258,32 +259,72 @@ const WardrobeUpload = ({ navigation }) => {
     }
   };
 
-  async function getColorName(r, g, b) {
-    console.log("red" + r)
-    try {
-        const response = await fetch(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}&format=json`);
-        console.log(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}`)
-        const responseText = await response.text();
-        console.log('Raw response:', responseText);
+//   async function getColorName(r, g, b) {
+//     console.log("red" + r)
+//     try {
+//         const response = await fetch(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}&format=json`);
+//         console.log(`https://www.thecolorapi.com/id?rgb=${r},${g},${b}`)
+//         const responseText = await response.text();
+//         console.log('Raw response:', responseText);
 
-        // Try parsing it as JSON
-        const data = JSON.parse(responseText);
+//         // Try parsing it as JSON
+//         const data = JSON.parse(responseText);
         
-        if (data.name && data.name.value) {
-            return data.name.value;
-        } else {
-            console.error('Unexpected API response:', data);
-            return 'Unknown Color';
-        }
-    } catch (error) {
-        console.error('Error fetching color name:', error);
-        return 'Unknown Color';
+//         if (data.name && data.name.value) {
+//             return data.name.value;
+//         } else {
+//             console.error('Unexpected API response:', data);
+//             return 'Unknown Color';
+//         }
+//     } catch (error) {
+//         console.error('Error fetching color name:', error);
+//         return 'Unknown Color';
+//     }
+//   }
+
+const colors = [
+    ["Black", [0, 0, 0]],
+    ["White", [255, 255, 255]],
+    ["Red", [255, 0, 0]],
+    ["Purple", [128, 0, 128]],
+    ["Green", [0, 128, 0]],
+    ["Yellow", [255, 255, 0]],
+    ["Blue", [0, 0, 255]],
+  ];
+  
+  const distance = (a, b) => {
+    const dx = a[0] - b[0];
+    const dy = a[1] - b[1];
+    const dz = a[2] - b[2];
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  };
+  
+  const findClosest = (pixel) => {
+    let minDistance = Infinity;
+    let closestColor = null;
+    for (let [name, rgb] of colors) {
+      const d = distance(pixel, rgb);
+      if (d < minDistance) {
+        minDistance = d;
+        closestColor = name;
+      }
     }
-  }
+    return closestColor;
+  };
+
+  function getColorName(r, g, b) {
+    const averageColor = [r, g, b]; // Use the RGB values passed into the function
+    const closestColor = findClosest(averageColor); // Find the closest color using findClosest
+
+    return closestColor; // Return the closest color name
+}
 
   // Function to analyze the image using Google Cloud Vision
   const analyzeImageWithGoogleVision = async (imageUrl) => {
     try {
+      setIsAnalyzing(true);
+      setUploadStatus('Analyzing image...');
+      
       const apiEndpoint = 'https://vision.googleapis.com/v1/images:annotate';
       const apiKey = GOOGLE_CLOUD_API_KEY;
 
@@ -376,6 +417,7 @@ const WardrobeUpload = ({ navigation }) => {
         // Process the description with Mistral-7B and navigate after logging
         const clothingItems = await LLMOutput1(description);
         console.log('Processed by Mistral-7B:', clothingItems);
+        setIsAnalyzing(false);
         if (clothingItems && colorName) {
             navigation.navigate('OutfitSearchScreen', {
                 clothingItem: clothingItems,
@@ -383,19 +425,49 @@ const WardrobeUpload = ({ navigation }) => {
             });
         } else {
             console.error("Navigation aborted: Empty clothing item or color");
+            Alert.alert('Analysis Failed', 'Could not determine clothing type or color.');
         }
       } else {
+        setIsAnalyzing(false);
         setImageDescription('No relevant labels detected.');
+        Alert.alert('Analysis Failed', 'No relevant labels detected in the image.');
       }
     } catch (error) {
+      setIsAnalyzing(false);
       console.error('Google Vision analysis error:', error);
       Alert.alert('Analysis Failed', `Error: ${error.message}`);
     }
   };
 
+  // Function to handle wardrobe item click
+  const handleImageClick = (imageUrl) => {
+    Alert.alert(
+      'Wardrobe Item',
+      'What would you like to do with this item?',
+      [
+        {
+          text: 'Find Matching Outfits',
+          onPress: () => analyzeImageWithGoogleVision(imageUrl)
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            const key = imageUrl.split(`https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/`)[1];
+            deleteImage(key);
+          }
+        },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+
   // Function to render an individual image item
   const renderImageItem = ({ item }) => (
-    <View style={styles.imageContainer}>
+    <TouchableOpacity 
+      style={styles.imageContainer}
+      onPress={() => handleImageClick(item.url)}
+    >
       <Image source={{ uri: item.url }} style={styles.thumbnail} />
       <TouchableOpacity 
         style={styles.deleteButton}
@@ -403,7 +475,7 @@ const WardrobeUpload = ({ navigation }) => {
       >
         <Ionicons name="trash-outline" size={24} color="white" />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -415,19 +487,19 @@ const WardrobeUpload = ({ navigation }) => {
         <TouchableOpacity 
           style={styles.button}
           onPress={pickImage} 
-          disabled={isUploading} 
+          disabled={isUploading || isAnalyzing} 
         >
           <Text style={styles.buttonText}>pick and upload image</Text>
         </TouchableOpacity>
         
-        {isUploading && (
+        {(isUploading || isAnalyzing) && (
           <View style={styles.uploadingContainer}>
             <ActivityIndicator size="large" color="#A47551" />
             <Text style={styles.uploadingText}>{uploadStatus}</Text>
           </View>
         )}
 
-        {imageDescription && (
+        {imageDescription && !isUploading && !isAnalyzing && (
           <View style={styles.resultContainer}>
             <Text style={styles.resultTitle}>Image Analysis:</Text>
             <Text style={styles.resultText}>{imageDescription}</Text>
@@ -437,6 +509,7 @@ const WardrobeUpload = ({ navigation }) => {
         {/* User's previous images section */}
         <View style={styles.imagesSection}>
           <Text style={styles.sectionTitle}>Your Wardrobe Items</Text>
+          <Text style={styles.helpText}>Tap on an item to find matching outfits</Text>
           
           {isLoading ? (
             <ActivityIndicator size="large" color="#A47551" />
@@ -457,6 +530,7 @@ const WardrobeUpload = ({ navigation }) => {
           <TouchableOpacity 
             style={styles.refreshButton}
             onPress={() => fetchUserImages(userEmail)} 
+            disabled={isUploading || isAnalyzing}
           >
             <Text style={styles.buttonText}>refresh images</Text>
           </TouchableOpacity>
@@ -511,6 +585,14 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     fontFamily: 'Avenir',
     paddingHorizontal: 20,
+  },
+  helpText: {
+    fontSize: 14,
+    color: '#457B9D',
+    textAlign: 'center',
+    marginBottom: 15,
+    fontFamily: 'Avenir',
+    fontStyle: 'italic',
   },
   button: {
     backgroundColor: '#A47551',
@@ -582,7 +664,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     color: '#5C6B73',
-    marginBottom: 15,
+    marginBottom: 5,
     fontWeight: '600',
     fontFamily: 'Avenir-Medium',
     textAlign: 'center',

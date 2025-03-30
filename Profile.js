@@ -6,6 +6,7 @@ export default function Profile() {
   const [selectedMode, setSelectedMode] = useState("casual"); // default value
   
   return (
+    <>
     <View style={styles.container}>
       <Text style={styles.label}>Select your mode:</Text>
       <View style={styles.pickerContainer}>
@@ -27,6 +28,7 @@ export default function Profile() {
         <Text style={styles.buttonText}>Save Profile</Text>
       </TouchableOpacity>
     </View>
+    </>
   );
 }
 

@@ -188,8 +188,8 @@ export default function OutfitSearchScreen({ navigation, route }) {
             disabled={isLoading}
           >
             <Text style={styles.buttonText}>
-              {isLoading ? 'searching...' : 'find outfit ideas'}
-            </Text>
+            {isLoading ? 'searching...' : `find outfit ideas with your ${clothingColor} ${clothingItem}`}
+          </Text>
           </TouchableOpacity>
           
           {isLoading && (
