@@ -22,7 +22,7 @@ export default function CreateAccountScreen({ navigation }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       Alert.alert('Account Created', `Welcome ${userCredential.user.email}`);
-      navigation.navigate('SignIn'); // Navigate back to SignIn screen after account creation
+      navigation.navigate('GenerateAvatar'); // Navigate back to SignIn screen after account creation
     } catch (error) {
       switch (error.code) {
         case 'auth/invalid-email':
