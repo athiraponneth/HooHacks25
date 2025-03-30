@@ -58,40 +58,6 @@ export async function LLMOutput1(imageAnalysis) {
     }
 }
 
-async function generateSearchQuery(imageAnalysis) { 
-    const prompt = `Given a list of clothing items ${WardrobeUpload.LLMOutput1}, create a simple Pexels API friendly search query by focusing on the main item and it's color such as 
-    "red hoodie". Clothing items: ${imageAnalysis}. Output only the search query`;
-    
-    try {
-        const response = await fetch('https://api.together.xyz/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${TOGETHER_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'mistralai/Mistral-7B-Instruct-v0.1',
-                messages: [
-                    { role: "user", content: prompt }
-                ],
-                temperature: 0.3, // Reduced for more focused outputs
-                max_tokens: 20    // Reduced since we need a short query
-            })
-        });
-
-        const data = await response.json();
-        const searchQuery = data.choices[0].message.content.trim();
-        
-        console.log('Original Analysis:', imageAnalysis);
-        console.log('Generated Search Query:', searchQuery);
-        
-        return searchQuery;
-    } catch (error) {
-        console.error('Error generating search query:', error);
-        return '';
-    }
-}
-
 const WardrobeUpload = ({ navigation }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(null);
