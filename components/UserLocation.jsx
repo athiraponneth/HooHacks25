@@ -30,7 +30,6 @@ export const UserLocation = ({ navigation }) => {
     if (locationData) {
       console.log('Latitude:', locationData.latitude);
       console.log('Longitude:', locationData.longitude);
-      navigation.navigate('Weather', { location: locationData });
     }
   };
 
@@ -52,7 +51,7 @@ export const UserLocation = ({ navigation }) => {
       <View style={styles.navigationContainer}>
         <TouchableOpacity 
           style={styles.navArrow} 
-          onPress={() => navigation.navigate('SignInScreen')}
+          onPress={() => navigation.navigate('LandingPage')}
         >
           <Text style={styles.arrowText}>←</Text>
         </TouchableOpacity>

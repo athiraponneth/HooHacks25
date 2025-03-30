@@ -9,7 +9,12 @@ import CreateAccountScreen from './CreateAccountScreen';
 import GenerateAvatarScreen from './GenerateAvatarScreen';
 import UserLocation from './components/UserLocation';
 import WardrobeUpload from './WardrobeUpload';
+import LandingPage from './LandingPage';
 import logo from './assets/logo.png';
+import user from './assets/user.png';
+import Profile from './Profile';
+import Weather from './components/Weather'
+import ProductRecommendations from './ProductRecommendations'
 
 // Sign In Screen Component
 function SignInScreen({ navigation }) {
@@ -19,7 +24,7 @@ function SignInScreen({ navigation }) {
   const handleSignIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigation.replace('GenerateAvatarScreen');
+      navigation.navigate('LandingPage');
     } catch (error) {
       Alert.alert('Error', error.message);
     }
@@ -73,14 +78,20 @@ export default function App() {
           <>
             <Stack.Screen name="SignIn" component={SignInScreen} />
             <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
-            
+            <Stack.Screen name="LandingPage" component={LandingPage} />
+            <Stack.Screen name="User Location" component={UserLocation} />
+
           </>
         ) : (
           <>
             <Stack.Screen name="GenerateAvatarScreen" component={GenerateAvatarScreen} />
+            <Stack.Screen name="LandingPage" component={LandingPage} />
             <Stack.Screen name="UserLocation" component={UserLocation} />
             <Stack.Screen name="OutfitSearchScreen" component={OutfitSearchScreen} />
             <Stack.Screen name="WardrobeUpload" component={WardrobeUpload} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="ProductRecommendations" component={ProductRecommendations} />
+
           </>
         )}
       </Stack.Navigator>

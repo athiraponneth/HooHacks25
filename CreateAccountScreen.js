@@ -44,7 +44,7 @@ export default function CreateAccountScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image source={logo} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.title}>create account</Text>
+      <Text style={styles.title}>welcome!</Text>
       <TextInput
         style={styles.input}
         placeholder="email"
